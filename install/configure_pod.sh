@@ -39,14 +39,11 @@ rollout_build=`(. "$BIN_DIR"/../lib/versions; echo $build)`
 
 shopt -s nullglob
 
-unset app_key help exit xcode_dir tweaker_before_linking include_swift exclude_swift
-while getopts "p:k:lsoh" option; do
+unset help exit xcode_dir app_key
+while getopts "p:k:h" option; do
   case $option in
     k)
       app_key=$OPTARG
-      ;;
-    l)
-      tweaker_before_linking=1
       ;;
     h)
       help=1
@@ -54,27 +51,11 @@ while getopts "p:k:lsoh" option; do
     p)
       xcode_dir=$OPTARG
       ;;
-    s)
-      include_swift="-s"
-      ;;
-    o)
-      exclude_swift="-o"
-      ;;
     *)
       exit=1
       ;;
   esac
 done
-
-[ -n "$include_swift" ] && [ -n "$exclude_swift" ] && {
-  echo "-s and -o can't be specified together"
-  help=1
-}
-
-[ -z "$include_swift" ] && [ -z "$exclude_swift" ] && {
-  echo "-s or -o are required "
-  help=1
-}
 
 [ -z "$help" ] || {
   cat << EOF
@@ -84,9 +65,6 @@ $0 <options>
   -k <app key>           Rollout app key (required)
   -p <.xcodeproj dir>    a path to the project directory (optional, for cases
                          in which the script cannot locate it automatically)
-  -l                     set tweaker script phase before the linking phase
-  -s                     Include swift support
-  -o                     Exclude swift support (ObjC only)
   -h                     this help message
 EOF
   exit
@@ -109,12 +87,7 @@ echo "Configuring project \"$xcode_dir\""
 rm -rf "$PROJECT_DIR"/Rollout-ios-SDK
 analytics  rm_exit_status $? 
 
-if [ -n "$include_swift" ] ; then
-  "$BIN_DIR"/Installer "$xcode_dir" "$app_key" "$include_swift"
-  analytics includes_swift true 
-else
-  "$BIN_DIR"/Installer "$xcode_dir" "$app_key"
-fi
+"$BIN_DIR"/Installer "$xcode_dir" "$app_key"
 
 exit_status=$?
 

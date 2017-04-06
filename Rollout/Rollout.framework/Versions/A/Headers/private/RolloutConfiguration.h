@@ -11,6 +11,9 @@
 @protocol RolloutDeviceProperties;
 @protocol RolloutErrors;
 
+@class RolloutFeatureFlagId;
+@class RolloutExperiment;
+
 @interface RolloutConfiguration : NSObject
 
 @property (atomic) NSDictionary *conf;
